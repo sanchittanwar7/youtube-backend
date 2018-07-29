@@ -4,18 +4,22 @@ var fs = require('fs');
 var youtubedl = require('youtube-dl');
  
 /* GET home page. */
-router.get('/download/:id', function(req, res, next) {
+router.get('/download/:id/:format', function(req, res, next) {
 	var id = req.params.id;
-	var video = youtubedl('https://www.youtube.com/watch?v=' + id, ['--format=18']);
+	var format = req.params.format;
+	console.log(id)
+	console.log(format)
+	var video = youtubedl('https://www.youtube.com/watch?v=' + id, ['--format=' + format]);
 	var title;
 	video.on('info', function(info) {
 		console.log('Download started');
 		console.log('filename: ' + info.filename);
-		title = info.title
-		console.log('size: ' + info.size);
+		console.log('size: ' + info.size/1000000 + 'MB');
+		// var filename = encodeURIComponent(info.title + '.mp4');
+		video.pipe(fs.createWriteStream(info._filename));
 	});
 
-	video.pipe(fs.createWriteStream('title.mp4'));
+	// video.pipe(fs.createWriteStream(title));
 	video.on('end', function() {
 	  console.log('finished downloading!');
 	  res.end()
